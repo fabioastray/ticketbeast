@@ -122,4 +122,20 @@ class PurchaseTicketTest extends TestCase
         $response->assertJsonFragment(['payment_token']);
         $response->assertStatus(422);
     }
+
+    function test_payment_token_is_valid_to_purchase_tickets(){
+        
+        $concert = factory(Concert::class)->create();
+        $orderParams = [
+            'email' => 'ana@example.com',
+            'ticket_quantity' => 3,
+            'payment_token' => 'invalid-payment-token'
+        ];
+
+        $response = $this->orderTickets($concert, $orderParams);
+        $order = $concert->orders()->where('email', $orderParams['email']);
+
+        $response->assertStatus(422);
+        $this->assertNull($order);
+    }
 }
