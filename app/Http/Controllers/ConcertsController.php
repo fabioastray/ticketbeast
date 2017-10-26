@@ -9,7 +9,7 @@ use App\Models\Concert;
 class ConcertsController extends Controller
 {
     function show($id){
-        $concert = Concert::find($id);
-        return view('concerts.show')->with('concert', $concert);
+        $concert = Concert::published('published_at')->findOrFail($id);
+        return view('concerts.show')->with(compact('concert'));
     }
 }

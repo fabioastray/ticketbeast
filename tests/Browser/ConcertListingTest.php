@@ -17,10 +17,10 @@ class ViewConcertListingTest extends DuskTestCase
      *
      * @return void
      */
-    public function test_user_can_view_a_concert_listing()
+    public function test_user_can_view_a_published_concert_listings()
     {
         // Arrange
-        $concert = factory(Concert::class)->create([
+        $concert = factory(Concert::class)->states('published')->create([
             'date' => Carbon::parse('December 1, 2017 8:00pm'),
         ]);
 
@@ -40,5 +40,19 @@ class ViewConcertListingTest extends DuskTestCase
                     ->assertSee($concert->zip)
                     ->assertSee($concert->additional_information);
         });
+    }
+
+    public function test_user_cannot_view_unpublished_concerts_listings()
+    {
+        // Arrange
+        $concert = factory(Concert::class)->create([
+            'published_at' => null
+        ]);
+
+        // Act
+        $response = $this->get("/concerts/{$concert->id}");
+        
+        // Assert
+        $response->assertStatus(404);
     }
 }
