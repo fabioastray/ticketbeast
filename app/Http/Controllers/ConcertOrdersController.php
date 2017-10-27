@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Billing\PaymentGateway;
 use App\Billing\PaymentFailException;
 use App\Models\Concert;
+use App\Exceptions\NotEnoughTicketsException;
 
 class ConcertOrdersController extends Controller
 {
@@ -24,7 +25,8 @@ class ConcertOrdersController extends Controller
             'payment_token' => 'required'
         ]);
 
-        $httpResponseCode = 201;
+        $httpResponseCode = $this::HTTP_CODE_CREATED;
+        $deleteOrder = false;
 
         try{
             $concert = Concert::published()->findOrFail($concertId);
@@ -32,15 +34,21 @@ class ConcertOrdersController extends Controller
             $ticketQuantity = request('ticket_quantity');
             $token = request('payment_token');
             $email = request('email');
-
             $amount = $ticketQuantity * $concert->ticket_price;
 
-            $this->paymentGateway->charge($amount, $token);
-
             $order = $concert->orderTickets($email, $ticketQuantity);
+
+            $this->paymentGateway->charge($amount, $token);
         }catch(PaymentFailException $e){
-            $httpResponseCode = 422;
+            $httpResponseCode = $this::HTTP_CODE_UNPROCESSABLE_ENTITY;
+            $deleteOrder = true;
+        }catch(NotEnoughTicketsException $e){
+            $httpResponseCode = $this::HTTP_CODE_UNPROCESSABLE_ENTITY; 
+            $deleteOrder = true;
         }
+
+        if(!empty($order) && $deleteOrder)
+            $order->cancel();
 
         return response()->json([], $httpResponseCode);
     }

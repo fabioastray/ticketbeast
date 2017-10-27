@@ -10,4 +10,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    const HTTP_CODE_UNPROCESSABLE_ENTITY = 422;
+    const HTTP_CODE_CREATED = 201;
 }
