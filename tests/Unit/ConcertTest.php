@@ -148,7 +148,7 @@ class ConcertTest extends TestCase
                                             ->addTickets($ticketsQuantity);
         $concert->orderTickets($email1, $orderedTicketsQuantity);
 
-        $this->assertNotNull($concert->getOrderFor($email1));
-        $this->assertNull($concert->getOrderFor($email2));
+        $this->assertNotNull($concert->getOrdersFor($email1)->first());
+        $this->assertNull($concert->getOrdersFor($email2)->first());
     }
 }

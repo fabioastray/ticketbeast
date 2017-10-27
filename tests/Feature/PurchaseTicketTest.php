@@ -46,7 +46,7 @@ class PurchaseTicketTest extends TestCase
         $response = $this->orderTickets($concert, $orderParams);
 
         $this->assertTrue($concert->hasOrderFor($orderParams['email']));
-        $order = $concert->getOrderFor($orderParams['email']);
+        $order = $concert->getOrdersFor($orderParams['email'])->first();
         
         // Assert
         $response->assertStatus(HTTP_CODE::CREATED);
@@ -156,7 +156,7 @@ class PurchaseTicketTest extends TestCase
         $response = $this->orderTickets($concert, $orderParams);
 
         $response->assertStatus(HTTP_CODE::NOT_FOUND);
-        $this->assertEquals(0, $concert->orders()->count());
+        $this->assertEquals(0, $concert->orders->count());
         $this->assertEquals(0, $this->paymentGateway->totalCharges());
     }
 

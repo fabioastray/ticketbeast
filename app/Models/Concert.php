@@ -67,11 +67,11 @@ class Concert extends Model
         return $this->tickets()->available()->count();
     }
 
-    function hasOrderFor($email){
-        return $this->orders()->where('email', $email)->count() > 0;
+    function hasOrderFor($customerEmail){
+        return $this->orders()->where('email', $customerEmail)->count() > 0;
     }
 
-    function getOrderFor($email){
-        return $this->orders()->where('email', $email)->first();
+    function getOrdersFor($customerEmail){
+        return $this->orders()->where('email', $customerEmail)->get();
     }
 }
