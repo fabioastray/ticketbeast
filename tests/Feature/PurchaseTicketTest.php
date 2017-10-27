@@ -133,7 +133,7 @@ class PurchaseTicketTest extends TestCase
         ];
 
         $response = $this->orderTickets($concert, $orderParams);
-        $order = $concert->orders()->where('email', $orderParams['email']);
+        $order = $concert->orders()->where('email', $orderParams['email'])->first();
 
         $response->assertStatus(422);
         $this->assertNull($order);

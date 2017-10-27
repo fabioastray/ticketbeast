@@ -38,7 +38,7 @@ class ConcertOrdersController extends Controller
             $this->paymentGateway->charge($amount, $token);
 
             $order = $concert->orderTickets($email, $ticketQuantity);
-        }catch(PaymentFailedException $e){
+        }catch(\RuntimeException $e){
             $httpResponseCode = 422;
         }
 

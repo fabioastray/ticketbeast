@@ -1,6 +1,4 @@
 <?php
 namespace App\Billing;
 
-class PaymentFailException extends \RuntimeException{
-
-}
+class PaymentFailException extends \RuntimeException {}
