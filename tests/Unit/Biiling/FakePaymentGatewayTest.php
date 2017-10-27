@@ -8,11 +8,6 @@ use App\Billing\PaymentFailException;
 
 class FakePaymentGatewayTest extends TestCase
 {
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
     function test_charges_with_a_valid_payment_token_are_succesful(){
         $chargeAmount = 2500;
         $paymentGateway = new FakePaymentGateway;

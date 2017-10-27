@@ -8,6 +8,7 @@ use Carbon\Carbon;
 
 use Tests\DuskTestCase;
 use App\Models\Concert;
+use App\Constants\HTTP_CODE;
 
 class ViewConcertListingTest extends DuskTestCase
 {
@@ -53,6 +54,6 @@ class ViewConcertListingTest extends DuskTestCase
         $response = $this->get("/concerts/{$concert->id}");
         
         // Assert
-        $response->assertStatus(404);
+        $response->assertStatus(HTTP_CODE::NOT_FOUND);
     }
 }

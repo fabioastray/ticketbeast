@@ -8,6 +8,7 @@ use App\Billing\PaymentGateway;
 use App\Billing\PaymentFailException;
 use App\Models\Concert;
 use App\Exceptions\NotEnoughTicketsException;
+use App\Constants\HTTP_CODE;
 
 class ConcertOrdersController extends Controller
 {
@@ -25,7 +26,7 @@ class ConcertOrdersController extends Controller
             'payment_token' => 'required'
         ]);
 
-        $httpResponseCode = $this::HTTP_CODE_CREATED;
+        $httpResponseCode = HTTP_CODE::CREATED;
         $deleteOrder = false;
 
         try{
@@ -40,10 +41,10 @@ class ConcertOrdersController extends Controller
 
             $this->paymentGateway->charge($amount, $token);
         }catch(PaymentFailException $e){
-            $httpResponseCode = $this::HTTP_CODE_UNPROCESSABLE_ENTITY;
+            $httpResponseCode = HTTP_CODE::UNPROCESSABLE_ENTITY;
             $deleteOrder = true;
         }catch(NotEnoughTicketsException $e){
-            $httpResponseCode = $this::HTTP_CODE_UNPROCESSABLE_ENTITY; 
+            $httpResponseCode = HTTP_CODE::UNPROCESSABLE_ENTITY; 
             $deleteOrder = true;
         }
 

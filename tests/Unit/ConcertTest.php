@@ -12,11 +12,7 @@ use App\Exceptions\NotEnoughTicketsException;
 class ConcertTest extends TestCase
 {
     use DatabaseMigrations;
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
+
     function test_can_get_formatted_date(){
         $concert = factory(Concert::class)->make([
             'date' => Carbon::parse('2017-12-01 8:00pm')
@@ -126,5 +122,33 @@ class ConcertTest extends TestCase
             $this->assertNull($order);
             $this->assertEquals($ticketsQuantity - $orderedTicketsQuantity1, $concert->ticketsRemaining());
         }
+    }
+
+    function test_can_decide_if_has_order_for(){
+
+        $ticketsQuantity = 1;
+        $orderedTicketsQuantity = 1;
+        $email1 = 'email1@example.com';
+        $email2 = 'email2@example.com';
+        $concert = factory(Concert::class)->create()
+                                          ->addTickets($ticketsQuantity);
+        $concert->orderTickets($email1, $orderedTicketsQuantity);
+
+        $this->assertTrue($concert->hasOrderFor($email1));
+        $this->assertFalse($concert->hasOrderFor($email2));
+    }
+
+    function test_can_get_an_order_for(){
+
+        $ticketsQuantity = 1;
+        $orderedTicketsQuantity = 1;
+        $email1 = 'email1@example.com';
+        $email2 = 'email2@example.com';
+        $concert = factory(Concert::class)->create()
+                                            ->addTickets($ticketsQuantity);
+        $concert->orderTickets($email1, $orderedTicketsQuantity);
+
+        $this->assertNotNull($concert->getOrderFor($email1));
+        $this->assertNull($concert->getOrderFor($email2));
     }
 }

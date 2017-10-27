@@ -10,24 +10,25 @@ use App\Models\Concert;
 use App\Models\Order;
 use App\Exceptions\NotEnoughTicketsException;
 
-class OrderTest extends TestCase
+class TicketTest extends TestCase
 {
     use DatabaseMigrations;
 
-    function test_tickets_are_released_when_an_order_is_cancelled(){
+    function test_a_ticket_can_be_released(){
 
-        $ticketsQuantity = 10;
+        $ticketsQuantity = 1;
         $email = 'email1@example.com';
-        $orderedTicketsQuantity = 5;
+        $orderedTicketsQuantity = 1;
         $concert = factory(Concert::class)->create();
         $concert->addTickets($ticketsQuantity);
 
         $order = $concert->orderTickets($email, $orderedTicketsQuantity);
-        $this->assertEquals($ticketsQuantity - $orderedTicketsQuantity, $concert->ticketsRemaining());
-        
-        $order->cancel();
+        $ticket = $order->tickets()->first();
 
-        $this->assertNull($order->fresh());
-        $this->assertEquals($ticketsQuantity, $concert->ticketsRemaining());
+        $this->assertEquals($order->id, $ticket->order_id);
+
+        $ticket->release();
+
+        $this->assertNull($ticket->fresh()->order_id);
     }
 }
