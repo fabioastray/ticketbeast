@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Billing\PaymentGateway;
-use App\Billing\PaymentFailedException;
+use App\Billing\PaymentFailException;
 use App\Models\Concert;
 
 class ConcertOrdersController extends Controller
@@ -27,7 +27,7 @@ class ConcertOrdersController extends Controller
         $httpResponseCode = 201;
 
         try{
-            $concert = Concert::find($concertId);
+            $concert = Concert::published()->findOrFail($concertId);
 
             $ticketQuantity = request('ticket_quantity');
             $token = request('payment_token');
@@ -38,7 +38,7 @@ class ConcertOrdersController extends Controller
             $this->paymentGateway->charge($amount, $token);
 
             $order = $concert->orderTickets($email, $ticketQuantity);
-        }catch(\RuntimeException $e){
+        }catch(PaymentFailException $e){
             $httpResponseCode = 422;
         }
 

@@ -41,7 +41,7 @@ class PurchaseTicketTest extends TestCase
             'ticket_quantity' => $ticketQuantity,
             'payment_token' => $this->paymentGateway->getValidTestToken()
         ];
-        $concert = factory(Concert::class)->create(['ticket_price' => $ticketPrice]);
+        $concert = factory(Concert::class)->states('published')->create(['ticket_price' => $ticketPrice]);
         
         // Act
         $response = $this->orderTickets($concert, $orderParams);
@@ -125,7 +125,7 @@ class PurchaseTicketTest extends TestCase
 
     function test_payment_token_is_valid_to_purchase_tickets(){
         
-        $concert = factory(Concert::class)->create();
+        $concert = factory(Concert::class)->states('published')->create();
         $orderParams = [
             'email' => 'ana@example.com',
             'ticket_quantity' => 3,
@@ -137,5 +137,21 @@ class PurchaseTicketTest extends TestCase
 
         $response->assertStatus(422);
         $this->assertNull($order);
+    }
+
+    function test_can_not_purchase_tickets_to_an_unpublished_concert(){
+        
+        $concert = factory(Concert::class)->states('unpublished')->create();
+        $orderParams = [
+            'email' => 'ana@example.com',
+            'ticket_quantity' => 3,
+            'payment_token' => $this->paymentGateway->getValidTestToken()
+        ];
+
+        $response = $this->orderTickets($concert, $orderParams);
+
+        $response->assertStatus(404);
+        $this->assertEquals(0, $concert->orders()->count());
+        $this->assertEquals(0, $this->paymentGateway->totalCharges());
     }
 }
