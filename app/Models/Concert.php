@@ -79,4 +79,8 @@ class Concert extends Model
     function getOrdersFor($customerEmail){
         return $this->orders()->where('email', $customerEmail)->get();
     }
+
+    function reserveTickets($ticketQuantity){
+       return $this->findTickets($ticketQuantity);
+    }
 }

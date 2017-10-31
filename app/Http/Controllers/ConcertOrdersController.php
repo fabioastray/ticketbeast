@@ -36,7 +36,7 @@ class ConcertOrdersController extends Controller
         $concert = Concert::published()->findOrFail($concertId);
 
         try{
-            $tickets = $concert->findTickets($ticketQuantity);
+            $tickets = $concert->reserveTickets($ticketQuantity);
             $reservation = new Reservation($tickets); 
 
             $this->paymentGateway->charge($reservation->totalCost(), $token);
