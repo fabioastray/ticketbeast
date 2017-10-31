@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use App\Billing\PaymentGateway;
 use App\Billing\PaymentFailException;
 use App\Models\Concert;
+use App\Models\Order;
 use App\Exceptions\NotEnoughTicketsException;
 use App\Constants\HTTP_CODE;
+use App\Domains\Reservation;
 
 class ConcertOrdersController extends Controller
 {
@@ -27,30 +29,25 @@ class ConcertOrdersController extends Controller
         ]);
 
         $httpResponseCode = HTTP_CODE::CREATED;
-        $deleteOrder = false;
+        $ticketQuantity = request('ticket_quantity');
+        $token = request('payment_token');
+        $email = request('email');
+
+        $concert = Concert::published()->findOrFail($concertId);
 
         try{
-            $concert = Concert::published()->findOrFail($concertId);
+            $tickets = $concert->findTickets($ticketQuantity);
+            $reservation = new Reservation($tickets); 
 
-            $ticketQuantity = request('ticket_quantity');
-            $token = request('payment_token');
-            $email = request('email');
-            $amount = $ticketQuantity * $concert->ticket_price;
+            $this->paymentGateway->charge($reservation->totalCost(), $token);
 
-            $order = $concert->orderTickets($email, $ticketQuantity);
-
-            $this->paymentGateway->charge($amount, $token);
+            $order = Order::forTickets($tickets, $email, $reservation->totalCost());            
         }catch(PaymentFailException $e){
             $httpResponseCode = HTTP_CODE::UNPROCESSABLE_ENTITY;
-            $deleteOrder = true;
         }catch(NotEnoughTicketsException $e){
             $httpResponseCode = HTTP_CODE::UNPROCESSABLE_ENTITY; 
-            $deleteOrder = true;
         }
 
-        if(!empty($order) && $deleteOrder)
-            $order->cancel();
-
-        return response()->json([], $httpResponseCode);
+        return response()->json(!empty($order) ? $order->toArray() : [], $httpResponseCode);
     }
 }

@@ -50,6 +50,7 @@ class PurchaseTicketTest extends TestCase
         
         // Assert
         $response->assertStatus(HTTP_CODE::CREATED);
+        $this->assertArraySubset(['email' => $orderParams['email'], 'ticket_quantity' => $ticketsQuantity, 'amount' => $expectedCharge], $response->original);
         $this->assertEquals($expectedCharge, $this->paymentGateway->totalCharges());
         $this->assertEquals($ticketsQuantity, $order->tickets->count());
     }
